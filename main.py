@@ -1,10 +1,13 @@
 import webapp2
-from feedgen.feed import FeedGenerator
-from bs4 import BeautifulSoup
 import urllib
+
 #append path to resolve the third party issue at google app engine
 import sys
 sys.path.insert(0, 'libs')
+
+from feedgen.feed import FeedGenerator
+from bs4 import BeautifulSoup
+
 
 class MainPage(webapp2.RequestHandler):
     def get(self):
@@ -14,6 +17,7 @@ class MainPage(webapp2.RequestHandler):
 application = webapp2.WSGIApplication([
     ('/', MainPage),
 ], debug=True)
+
 
 class Article:
 	def __init__(self, title, link, preamble, content):
@@ -49,6 +53,6 @@ def get_article(url):
 
 	return article
 
-article = get_article("http://plato.stanford.edu/cgi-bin/encyclopedia/random")
-generate_rss(article)
+#article = get_article("http://plato.stanford.edu/cgi-bin/encyclopedia/random")
+#generate_rss(article)
 
