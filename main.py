@@ -12,9 +12,10 @@ application = webapp2.WSGIApplication([
 
 #test the feedgen library
 from feedgen.feed import FeedGenerator
+from bs4 import BeautifulSoup
 import urllib
 
-def generateRss():
+def generate_rss(Article):
 	fg = FeedGenerator()
 	fg.id('http://lernfunk.de/media/654321')
 	fg.title('Some Testfeed')
@@ -28,13 +29,19 @@ def generateRss():
 	rssfeed  = fg.rss_str(pretty=True) # Get the RSS feed as string
 	fg.rss_file('rss.xml') # Write the RSS feed to a file
 
-def getArticle(url):
+def get_article(url):
+	soup = BeautifulSoup(urllib.urlopen(url).read())
+	title = soup.title.string
+	preamble = soup.find_all(id="preamble")[0].text.encode("utf-8")
+	main_text = soup.find_all(id="main-text")[0].text.encode("utf-8")
+	
+	article = Article(title, preamble, main_text)
+	return article
 
-
-getArticle("http://plato.stanford.edu/cgi-bin/encyclopedia/random")
+get_article("http://plato.stanford.edu/cgi-bin/encyclopedia/random")
 
 class Article():
-	def __init__(self, title, content, author):
+	def __init__(self, title, preamble, content):
 		self.title = title
+		self.preamble = preamble
 		self.content = content
-		self.author = author
