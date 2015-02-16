@@ -10,7 +10,7 @@ sys.path.insert(0, 'libs')
 
 from feedgen.feed import FeedGenerator
 from bs4 import BeautifulSoup
-from pytz import timezone
+import pytz
 
 
 class MainPage(webapp2.RequestHandler):
@@ -60,9 +60,8 @@ def generate_rss(article):
 def get_article(url):
 	last_update = get_last_update_date()
 	cached_article_id = memcache.get('cached_article_id')
-	eastern = timezone('US/Eastern')
 	#get new entry
-	if (eastern.localize(datetime.datetime.now()) - last_update).days >= 1 or cached_article_id is None:
+	if (datetime.datetime.now(pytz.utc) - last_update).days >= 1 or cached_article_id is None:
 
 		#create an url object
 		url_obj = urllib.urlopen(url)
@@ -77,8 +76,8 @@ def get_article(url):
 
 		memcache.add('cached_article_id', article.key().id())
 		#update last update date
-		eastern = timezone('US/Eastern')
-		date = eastern.localize(datetime.datetime.now())
+
+		date = datetime.datetime.now(pytz.utc)
 		memcache.add('last_update', date)
 
 		return article
@@ -92,8 +91,8 @@ def get_last_update_date():
     if date is not None:
         return date
     else:
-    	eastern = timezone('US/Eastern')
-        date = eastern.localize(datetime.datetime.now())
+   
+        date = datetime.datetime.now(pytz.utc)
         memcache.add('last_update', date)
         return date
 
