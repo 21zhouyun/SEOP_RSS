@@ -15,13 +15,17 @@ from pytz import timezone
 
 class MainPage(webapp2.RequestHandler):
     def get(self):
-        article = get_article("http://plato.stanford.edu/cgi-bin/encyclopedia/random")
-        self.response.headers['Cache-Control'] = 'public,max-age=%s' % 86400
-        self.response.headers['Content-Type'] = 'text/xml'
-        self.response.out.write(generate_rss(article))
+        self.redirect("http://plato.stanford.edu/cgi-bin/encyclopedia/random")
+
+class Feed(webapp2.RequestHandler):
+	def get(self):
+		article = get_article("http://plato.stanford.edu/cgi-bin/encyclopedia/random")
+		self.response.headers['Cache-Control'] = 'public,max-age=%s' % 86400
+		self.response.headers['Content-Type'] = 'text/xml'
+		self.response.out.write(generate_rss(article))
 
 application = webapp2.WSGIApplication([
-    ('/', MainPage),
+	('/', MainPage), ('/feed', Feed)
 ], debug=True)
 
 
@@ -74,8 +78,8 @@ def get_article(url):
 		memcache.add('cached_article_id', article.key().id())
 		#update last update date
 		eastern = timezone('US/Eastern')
-        date = eastern.localize(datetime.datetime.now())
-        memcache.add('last_update', date)
+		date = eastern.localize(datetime.datetime.now())
+		memcache.add('last_update', date)
 
 		return article
 
