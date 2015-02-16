@@ -41,11 +41,12 @@ def generate_rss(article):
 
 	fe = fg.add_entry()
 	fe.title(article.title)
-	fe.link(href=article.link, rel='self')
+	fe.link(href=article.link, rel='alternate')
+	fe.id(article.link)
 	fe.author(name="Stanford University")
 	fe.published(published=get_last_update_date())
 	fe.description("%s \n %s" % (article.preamble, article.content))
-	fe.content("%s \n %s" % (article.preamble, article.content))
+	fe.content(content="%s \n %s" % (article.preamble, article.content), type='CDATA')
 
 	fg.language('en')
 	rssfeed = fg.rss_str(pretty=True) # Get the RSS feed as string
@@ -63,10 +64,10 @@ def get_article(url):
 		soup = BeautifulSoup(url_obj.read())
 		title = soup.title.string
 		link = url_obj.geturl()
-		preamble = soup.find_all(id="preamble")[0].text
-		content = soup.find_all(id="main-text")[0].text
+		preamble = soup.find_all(id="preamble")[0].encode('utf-8')
+		content = soup.find_all(id="main-text")[0].encode('utf-8')
 		#contruct an article object
-		article = Article(title=title, link=link, preamble=preamble, content=content)
+		article = Article(title=title, link=link, preamble=preamble.decode('utf-8'), content=content.decode('utf-8'))
 		article.put()
 
 		memcache.add('cached_article_id', article.key().id())
