@@ -57,6 +57,7 @@ def get_article(url):
 	last_update = get_last_update_date()
 	cached_article_id = memcache.get('cached_article_id')
 	eastern = timezone('US/Eastern')
+	#get new entry
 	if (eastern.localize(datetime.datetime.now()) - last_update).days >= 1 or cached_article_id is None:
 
 		#create an url object
@@ -71,6 +72,10 @@ def get_article(url):
 		article.put()
 
 		memcache.add('cached_article_id', article.key().id())
+		#update last update date
+		eastern = timezone('US/Eastern')
+        date = eastern.localize(datetime.datetime.now())
+        memcache.add('last_update', date)
 
 		return article
 
